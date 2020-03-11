@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import sys
 import time
+from twilio.rest import Client
 from threading import Thread
 import importlib.util
 
@@ -188,6 +189,23 @@ while True:
             label_ymin = max(ymin, labelSize[1] + 10) # Make sure not to draw label too close to top of window
             cv2.rectangle(frame, (xmin, label_ymin-labelSize[1]-10), (xmin+labelSize[0], label_ymin+baseLine-10), (255, 255, 255), cv2.FILLED) # Draw white box to put label text in
             cv2.putText(frame, label, (xmin, label_ymin-7), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2) # Draw label text
+
+
+            # if knife detected send warning text using Twilio
+            if object_name == "knife":
+                account_sid = 'ACec8291bcf1440c2af4ea082bb02bc345'
+                auth_token = '8e6ac111ccdde5d97ace996333d842d4'
+                client = Client(account_sid, auth_token)
+
+                message = client.messages \
+                .create(
+                     body="Warning, Knife has been detected with " + label + " confidence",
+                     from_='+19032252880',
+                     to='+447954052087'
+                 )
+
+print(message.sid)
+
 
     # Draw framerate in corner of frame
     cv2.putText(frame,'FPS: {0:.2f}'.format(frame_rate_calc),(30,50),cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,0),2,cv2.LINE_AA)
